@@ -1,26 +1,28 @@
 import { reactive, readonly, onScopeDispose } from 'vue';
 import castleIcon from '@/assets/editor/icons/castle.png';
-import treeIcon from '@/assets/editor/icons/castle.png';
-import rockIcon from '@/assets/editor/icons/castle.png';
+import tsunami from '@/assets/editor/icons/tsunami.png';
 
 let animationFrameId = null;
 
 export function useEditor() {
 
 const tools = [
-    { name: 'castle', icon: castleIcon, label: 'Замок' },
-    { name: 'tree', icon: treeIcon, label: 'Дерево' },
-    { name: 'rock', icon: rockIcon, label: 'Камень' },
-    ];
+    { name: 'castle', icon: castleIcon, label: 'Замок', type: 'struct' },
+    { name: 'tsunami', icon: tsunami, label: 'Цунами', type: 'weather' },
+    { name: 'tsu23nami', icon: tsunami, label: 'Цунами', type: 'weather' },
+    { name: 'tsun43ami', icon: tsunami, label: 'Цунами', type: 'weather' },
+  ];
 
   const state = reactive({
     selectedTool: null,
     tools,
+    gameWorld : null
   });
 
   const selectTool = (toolName) => {
     if (state.selectedTool === toolName) {
       state.selectedTool = null;
+      state.gameWorld.clearOverlayEditor();
     } else {
       state.selectedTool = toolName;
     }
@@ -32,7 +34,7 @@ const tools = [
         return;
     }
 
-    console.log('Editor update tick');
+    state.gameWorld.prewiewEditor('asd', state.gameWorld.state.camera.getMouseWorld());
 
     animationFrameId = requestAnimationFrame(update);
   };
@@ -55,7 +57,7 @@ const tools = [
   });
 
   return {
-    state: readonly(state),
+    state,
     selectTool,
     startUpdateLoop,
     stopUpdateLoop,
