@@ -1,8 +1,9 @@
-import { reactive, onMounted, computed } from 'vue';
+// composables/useGameWorld.js
+import { reactive, readonly } from 'vue';
 import { useCamera } from './useCamera';
 
 export function useGameWorld() {
-    const alerts = reactive({
+    const state = reactive({
         canvas: null,
         ctx: null,
         isRunning: false,
@@ -11,82 +12,70 @@ export function useGameWorld() {
     });
 
     const resizeCanvas = () => {
-        if (!alerts.canvas) return;
-
-        alerts.canvas.width = window.innerWidth - 15;
-        alerts.canvas.height = window.innerHeight - 15;
+        if (!state.canvas) return;
+        state.canvas.width = window.innerWidth;
+        state.canvas.height = window.innerHeight;
     };
 
-    /**
-     * @param {HTMLElement} canvas
-     */
     const InitWorld = (canvas) => {
-        alerts.canvas = canvas;
-        alerts.ctx = canvas.getContext('2d');
-
-        if (!alerts.ctx) return;
+        state.canvas = canvas;
+        state.ctx = canvas.getContext('2d');
+        if (!state.ctx) return;
 
         resizeCanvas();
 
-        alerts.camera = useCamera(canvas, {
-            minZoom: 0.2,
-            maxZoom: 4,
+        state.camera = useCamera(canvas, {
+            minZoom: 0.1,
+            maxZoom: 5,
             dragToPan: true,
             zoomWithWheel: true,
         });
-        alerts.camera.setupEventListeners();
+        state.camera.setupEventListeners();
 
         window.addEventListener('resize', resizeCanvas);
 
-        alerts.isRunning = true;
+        state.isRunning = true;
         gameLoop();
     };
 
     const update = () => {
+        // логика обновления (позже)
     };
 
     const draw = () => {
-        if (!alerts.ctx || !alerts.canvas || !alerts.camera) return;
+        if (!state.ctx || !state.canvas || !state.camera) return;
+        const ctx = state.ctx;
+        ctx.clearRect(0, 0, state.canvas.width, state.canvas.height);
 
-        const ctx = alerts.ctx;
-        ctx.clearRect(0, 0, alerts.canvas.width, alerts.canvas.height);
-
-        // Применяем трансформацию камеры
-        alerts.camera.applyTransform(ctx);
-
-        // Теперь рисуем в мировых координатах!
-        const size = 20;
-        const x = 300;
-        const y = 300;
+        state.camera.applyTransform(ctx);
 
         ctx.fillStyle = '#3498db';
-        ctx.fillRect(x, y, size, size);
+        ctx.fillRect(300, 300, 20, 20);
 
-        // Возврат к исходной системе координат (для UI, если понадобится)
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.setTransform(1, 0, 0, 1, 0, 0); 
     };
 
     const gameLoop = () => {
-        if (!alerts.isRunning) return;
-
+        if (!state.isRunning) return;
         update();
         draw();
-
-        alerts.animationFrameId = requestAnimationFrame(gameLoop);
+        state.animationFrameId = requestAnimationFrame(gameLoop);
     };
 
     const destroy = () => {
-        alerts.isRunning = false;
-        if (alerts.animationFrameId) {
-            cancelAnimationFrame(alerts.animationFrameId);
+        state.isRunning = false;
+        if (state.animationFrameId) {
+            cancelAnimationFrame(state.animationFrameId);
         }
-        if (alerts.camera) {
-            alerts.camera.removeEventListeners();
+        if (state.camera) {
+            state.camera.removeEventListeners();
         }
         window.removeEventListener('resize', resizeCanvas);
     };
 
-    const getCamera = () => alerts.camera;
-
-    return { InitWorld, destroy, getCamera };
+    return {
+        state,
+        InitWorld,
+        destroy,
+    };
 }

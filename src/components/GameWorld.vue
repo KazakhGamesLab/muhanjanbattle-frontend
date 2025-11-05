@@ -1,14 +1,31 @@
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { useGameWorld } from '@/composables/world/index.js';
 
-const { InitWorld } = useGameWorld();
+
+const gameWorld = useGameWorld();
+
+const canvasRef = ref(null);
 
 onMounted(() => {
-    InitWorld(document.getElementById("world"));
-  });
+  if (canvasRef.value) {
+    gameWorld.InitWorld(canvasRef.value);
+  }
+});
+
+onUnmounted(() => {
+  gameWorld.destroy();
+});
+
+defineExpose({
+  gameWorld
+});
+
 </script>
 
 <template>
-    <canvas id="world"></canvas>
+  <canvas
+    ref="canvasRef"
+    style="display: block; width: 100%; height: 100%;"
+  ></canvas>
 </template>

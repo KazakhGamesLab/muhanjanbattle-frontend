@@ -1,12 +1,25 @@
 <script setup>
+import { onMounted, onUnmounted, computed, ref, watch } from 'vue';
 import LevelEditor from '@/components/LevelEditor.vue'
 import GameWorld from '@/components/GameWorld.vue'
+
+const gameWorldComponentRef = ref(null);
+
+const gameWorldLogic = computed(() => {
+  return gameWorldComponentRef.value?.gameWorld ?? null;
+});
+
+
 </script>
 
 <template>
   <div class="game-container">
-    <GameWorld />
-    <LevelEditor class="level-editor-panel" />
+    <GameWorld ref="gameWorldComponentRef" />
+    <LevelEditor
+      v-if="gameWorldLogic"
+      :game-world="gameWorldLogic"
+      class="level-editor-panel"
+    />
   </div>
 </template>
 

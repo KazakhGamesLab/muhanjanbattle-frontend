@@ -25,9 +25,9 @@ export function useCamera(canvas, options = {}) {
         isDragging: false,
         dragStart: { x: 0, y: 0 },
         lastMouseWorld: { x: 0, y: 0 },
+        mouseScreen: { x: 0, y: 0 },
     });
 
-    let mouseScreen = { x: 0, y: 0 };
 
     // Преобразование: экранные → мировые координаты
     const screenToWorld = (screenX, screenY) => {
@@ -46,19 +46,19 @@ export function useCamera(canvas, options = {}) {
     };
 
     const getMouseWorld = () => {
-        return screenToWorld(mouseScreen.x, mouseScreen.y);
+        return screenToWorld(state.mouseScreen.x, state.mouseScreen.y);
     };
 
     const getMouseScreen = () => {
-        return { ...mouseScreen };
+        return { ...state.mouseScreen };
     };
 
     // Обновление позиции мыши
     const onMouseMove = (e) => {
         const rect = canvas.getBoundingClientRect();
-        mouseScreen.x = e.clientX - rect.left;
-        mouseScreen.y = e.clientY - rect.top;
-        state.lastMouseWorld = screenToWorld(mouseScreen.x, mouseScreen.y);
+        state.mouseScreen.x = e.clientX - rect.left;
+        state.mouseScreen.y = e.clientY - rect.top;
+        state.lastMouseWorld = screenToWorld(state.mouseScreen.x, state.mouseScreen.y);
     };
 
     // Начало перетаскивания
@@ -141,7 +141,7 @@ export function useCamera(canvas, options = {}) {
     };
 
     // Публичный API
-    const api = {
+    const api = reactive({
         ...state,
         screenToWorld,
         worldToScreen,
@@ -150,7 +150,7 @@ export function useCamera(canvas, options = {}) {
         applyTransform,
         setupEventListeners,
         removeEventListeners,
-    };
+    });
 
     return api;
 }

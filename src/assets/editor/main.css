@@ -1,2 +1,19 @@
 @import "bootstrap";
 
+.icon-top{
+    background-color: #3F3F3F;
+    border-radius: 10px;
+    transition: 0.1s;
+}
+
+.icon-top:hover{
+    background-color: #585858;
+    border-radius: 10px;
+    transform: scale(1.05);
+}
+
+.icon-selected {
+    background-color: #7c7c7c;
+    border-radius: 10px;
+    transform: scale(1.1);
+  }
