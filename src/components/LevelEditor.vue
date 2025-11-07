@@ -1,10 +1,10 @@
 <script setup>
-import { onMounted, computed } from 'vue';
+import { onMounted,onUnmounted, computed } from 'vue';
 import '@/assets/editor/main.css';
 import { useEditor } from '@/composables/editor/editor.js';
 
 
-const { state, selectTool, startUpdateLoop } = useEditor();
+const { state, selectTool, startUpdateLoop, setupMouseHandlers } = useEditor();
 
 const props = defineProps({
   gameWorld: {
@@ -12,10 +12,16 @@ const props = defineProps({
     required: true,
   },
 });
+let removeMouseHandlers = null;
 
 onMounted(() => {
   state.gameWorld = props.gameWorld;
+  removeMouseHandlers = setupMouseHandlers();
   startUpdateLoop();
+});
+
+onUnmounted(() => {
+  if (removeMouseHandlers) removeMouseHandlers();
 });
 
 const groupedTools = computed(() => {
@@ -29,7 +35,9 @@ const groupedTools = computed(() => {
 </script>
 
 <template>
+  
   <div class="tools-container">
+    
     <div
       v-for="(tools, type) in groupedTools"
       :key="type"

@@ -119,8 +119,14 @@ export function useCamera(canvas, options = {}) {
     // Применение трансформации к контексту canvas перед отрисовкой
     const applyTransform = (ctx) => {
         ctx.setTransform(1, 0, 0, 1, 0, 0); // Сброс
-        ctx.translate(-state.x * state.scale, -state.y * state.scale);
+        ctx.translate(
+            Math.round(-state.x * state.scale), // Округляем до целых
+            Math.round(-state.y * state.scale)  // Округляем до целых
+        );
         ctx.scale(state.scale, state.scale);
+
+        // Отключить сглаживание (для чётких пикселей)
+        ctx.imageSmoothingEnabled = false;
     };
 
     // Установка обработчиков

@@ -1,6 +1,9 @@
 // composables/useGameWorld.js
 import { reactive, readonly } from 'vue';
 import { useCamera } from './useCamera';
+import { images } from '../../constants/preloadImages';
+import { useTileStream } from '../api/useTileStream';
+import { Tile } from '../entities/tile';
 
 export function useGameWorld() {
     const state = reactive({
@@ -11,6 +14,7 @@ export function useGameWorld() {
         isRunning: false,
         animationFrameId: null,
         camera: null,
+        tileStream: useTileStream()
     });
 
     const resizeCanvas = () => {
@@ -25,6 +29,7 @@ export function useGameWorld() {
     const InitWorld = (canvas, canvasOverlay) => {
         state.canvas = canvas;
         state.ctx = canvas.getContext('2d');
+        state.canvas.style.backgroundColor = '#2d64b6';
         state.canvasOverlay = canvasOverlay;
         state.overlayCtx = canvasOverlay.getContext('2d');
         if (!state.ctx) return;
@@ -52,26 +57,40 @@ export function useGameWorld() {
         if (!state.ctx || !state.canvas || !state.camera) return;
         const ctx = state.ctx;
         ctx.clearRect(0, 0, state.canvas.width, state.canvas.height);
-
         state.camera.applyTransform(ctx);
 
-        ctx.fillStyle = '#3498db';
-        ctx.fillRect(300, 300, 20, 20);
+        // отрисовка
+        /** @type {Tile[]} */
+        state.tileStream.tiles.forEach(/** @param {Tile} tile */ tile => {
+            tile.draw(ctx);
+        });
 
         ctx.setTransform(1, 0, 0, 1, 0, 0); 
     };
 
-    const prewiewEditor = (tool, worldCoords) => {
-        if (!state.ctx || !state.canvas || !state.camera) return;
+    const prewiewEditor = (tool, worldCoords = state.camera.getMouseWorld()) => {
+        if (!state.ctx || !state.canvas || !state.camera || !images[tool]) return;
+
         const ctx = state.overlayCtx;
         ctx.clearRect(0, 0, state.canvas.width, state.canvas.height);
 
         state.camera.applyTransform(ctx);
 
-        ctx.fillStyle = '#3498db';
-        ctx.fillRect(worldCoords.x - 10, worldCoords.y - 10, 20, 20);
+        const gridSize = 16;
+        const snappedX = Math.round(worldCoords.x / gridSize) * gridSize;
+        const snappedY = Math.round(worldCoords.y / gridSize) * gridSize;
 
-        ctx.setTransform(1, 0, 0, 1, 0, 0); 
+        ctx.drawImage(
+            images[tool],
+            snappedX - images[tool].width / 2,
+            snappedY - images[tool].height / 2,
+            images[tool].width,
+            images[tool].height
+        );
+
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+        return {x: snappedX, y: snappedY}
     };
 
     const clearOverlayEditor = () =>{
@@ -103,6 +122,6 @@ export function useGameWorld() {
         InitWorld,
         destroy,
         prewiewEditor,
-        clearOverlayEditor
+        clearOverlayEditor,
     };
 }

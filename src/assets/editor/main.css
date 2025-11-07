@@ -2,65 +2,74 @@
 
 
 .tools-container {
-    display: flex;
-    gap: 1.5rem;
-    justify-content: center;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    padding: 10px;
-  }
-  
-  .tool-column {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  
-  .tool-column-inner {
-    display: grid;
-    grid-template-rows: repeat(2, auto); /* максимум 2 по вертикали */
-    gap: 0.6rem;
-  }
-  
-  
-  .tool-item {
-    border-radius: 10px;
-    cursor: pointer;
-    padding: 6px;
-    transition: all 0.15s ease;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .tool-item img {
-    width: 35px;
-    height: 35px;
-    object-fit: contain;
-    pointer-events: none;
-  }
-  
-  .tool-item:hover {
-    background-color: #94e0b4;
-    transform: scale(1.05);
-  }
-  
-  .tool-item.selected {
-    background: rgba(52, 152, 219, 0.4);
-    border-color: rgba(52, 152, 219, 0.7);
-    transform: scale(1.05);
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  padding: 10px;
+}
 
-  }
-  
-  .tool-item.struct{
-    background: rgba(52, 219, 80, 0.4);
-  }
-
-  .tool-item.weather{
-    background: rgba(52, 186, 219, 0.4);
-  }
+.tool-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
 
+.tool-column-inner {
+  display: grid;
+  grid-template-rows: repeat(2, auto); /* максимум 2 по вертикали */
+  gap: 0.6rem;
+}
 
+
+.tool-item {
+  border-radius: 10px;
+  cursor: pointer;
+  padding: 6px;
+  transition: all 0.15s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tool-item img {
+  width: 35px;
+  height: 35px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.tool-item:hover {
+  background-color: #94e0b4;
+  transform: scale(1.05);
+}
+
+.tool-item.selected {
+  background: rgba(52, 152, 219, 0.4);
+  border-color: rgba(52, 152, 219, 0.7);
+  transform: scale(1.05);
+
+}
   
+.tool-item.struct{
+  background: rgba(52, 219, 80, 0.4);
+}
+
+.tool-item.weather{
+  background: rgba(52, 186, 219, 0.4);
+}
+
+.tool-item.tile_water{
+  background: rgba(4, 59, 179, 0.4);
+}
+  
+
+.tool-item.tile_earth{
+background: rgba(255, 192, 75, 0.502);
+}
+
+.tool-item.background{
+background: rgba(5, 5, 5, 0.502);
+}

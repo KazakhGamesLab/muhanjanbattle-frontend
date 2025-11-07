@@ -9,10 +9,12 @@ const canvasOverlay = ref(null);
 onMounted(() => {
   if (canvasRef.value && canvasOverlay.value) {
     gameWorld.InitWorld(canvasRef.value, canvasOverlay.value)
+    gameWorld.state.tileStream.start();
   }
 });
 
 onUnmounted(() => {
+  gameWorld.state.tileStream.stop();
   gameWorld.destroy()
 });
 
