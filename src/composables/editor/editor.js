@@ -1,6 +1,7 @@
 import { reactive, readonly, onScopeDispose } from 'vue';
 import castleIcon from '@/assets/editor/icons/castle.png';
 import tsunami from '@/assets/editor/icons/tsunami.png';
+import treeIcon from '@/assets/editor/icons/tree.png';
 import { imageUrls } from '../../constants/preloadImages';
 import { Tile } from '../entities/tile.js';
 import { useApi } from '../api/useApi.js';
@@ -8,20 +9,27 @@ import { useApi } from '../api/useApi.js';
 let animationFrameId = null;
 
 export function useEditor() {
-
   const tools = [
-    { name: 'castle', icon: castleIcon, label: 'Замок', type: 'struct' },
-    { name: 'tsunami', icon: tsunami, label: 'Цунами', type: 'weather' },
-    { name: 'water_1', icon: imageUrls['water_1'], label: 'Вода нижний уровень', type: 'tile_water'},
-    { name: 'water_2', icon: imageUrls['water_2'], label: 'Вода верхний уровень', type: 'tile_water'},
-    { name: 'sand_1', icon: imageUrls['sand_1'], label: 'Песок', type: 'tile_earth'},
-    { name: 'earth_1', icon: imageUrls['earth_1'], label: 'Земля', type: 'tile_earth'},
-    { name: 'background', icon: imageUrls['background'], label: 'Задник', type: 'background'},
+    { name: 'castle', icon: castleIcon, label: 'Замок', type: 'struct', level: 0, size : 'normal' },
+    { name: 'tsunami', icon: tsunami, label: 'Цунами', type: 'weather' , level: 0, size : 'normal' },
+    { name: 'tree_1', icon: treeIcon, label: 'Дерево 1', type: 'tile_tree', level: 0, size : 'small'},
+    { name: 'water_1', icon: imageUrls['water_1'], label: 'Вода нижний уровень', type: 'tile_water', level: 0, size : 'normal'},
+    { name: 'water_2', icon: imageUrls['water_2'], label: 'Вода верхний уровень', type: 'tile_water', level: 0, size : 'normal'},
+    { name: 'sand_1', icon: imageUrls['sand_1'], label: 'Песок', type: 'tile_earth', level: 0, size : 'normal'},
+    { name: 'earth_1', icon: imageUrls['earth_1'], label: 'Земля', type: 'tile_earth', level: 0, size : 'normal'},
+    { name: 'earth_2', icon: imageUrls['earth_2'], label: 'Земля2', type: 'tile_earth', level: 0, size : 'normal'},
+    { name: 'background', icon: imageUrls['background'], label: 'Задник', type: 'background', level: 0, size : 'normal'},
+    { name: 'background_1', icon: imageUrls['background_1'], label: 'Задник', type: 'background', level: 0, size : 'small'},
   ];
 
   const getTypeByName = (name) => {
       const tool = tools.find(tool => tool.name === name);
       return tool ? tool.type : null;
+  };
+
+  const getSizeByName = (name) => {
+      const tool = tools.find(tool => tool.name === name);
+      return tool ? tool.size : null;
   };
 
   const state = reactive({
@@ -30,14 +38,19 @@ export function useEditor() {
     gameWorld : null,
     tempCoord: {x : 0, y: 0},
     isMouseDown: false, 
-    api : useApi()
+    api : useApi(),
   });
+
+
+  const clearTool = () => {
+    state.selectedTool = null;
+    state.tempCoord = { x:0, y:0 };
+    state.gameWorld?.clearOverlayEditor();
+  }
 
   const selectTool = (toolName) => {
     if (state.selectedTool === toolName) {
-      state.selectedTool = null;
-      state.tempCoord = { x:0, y:0 };
-      state.gameWorld?.clearOverlayEditor();
+      clearTool();
     } else {
       state.selectedTool = toolName;
     }
@@ -48,8 +61,7 @@ export function useEditor() {
          animationFrameId = requestAnimationFrame(update);
         return;
     }
-
-    state.tempCoord = state.gameWorld.prewiewEditor(state.selectedTool);
+    state.tempCoord = state.gameWorld.prewiewEditor(state.selectedTool, getSizeByName(state.selectedTool));
     animationFrameId = requestAnimationFrame(update);
   };
 
@@ -66,10 +78,8 @@ export function useEditor() {
     }
   };
 
-  const handleClick = (worldCoords) => {
-      if (state.selectedTool && state.gameWorld) {
-          //state.gameWorld.state.camera.removeEventListeners();
-          let tile = new Tile(
+  const placeTile = () => {
+    let tile = new Tile(
             state.tempCoord.x, 
             state.tempCoord.y, 
             imageUrls[state.selectedTool], 
@@ -80,13 +90,17 @@ export function useEditor() {
           state.api.addTile(tile).catch(err => {
             console.error('Не удалось добавить тайл:', err);
           });
+  };
+
+  const handleClick = (worldCoords) => {
+      if (state.selectedTool && state.gameWorld) {
+          placeTile();
       }
   };
 
   const handleMouseDown = (worldCoords) => {
       if (state.selectedTool && state.gameWorld) {
           state.isMouseDown = true;
-          //state.gameWorld.addTile(state.selectedTool, worldCoords);
       }
   };
 
@@ -97,9 +111,15 @@ export function useEditor() {
   };
 
   const handleMouseMove = (worldCoords) => {
-      if (state.isMouseDown && state.selectedTool && state.gameWorld) {
-          //state.gameWorld.addTile(state.selectedTool, worldCoords);
-      }
+    if (state.isMouseDown && state.selectedTool && state.gameWorld) {
+        
+    }
+  };
+
+  const handleKeyDown = (keydown) => {
+    if (keydown.key == 'e'){
+      selectTool('background');
+    }
   };
 
   const setupMouseHandlers = () => {
@@ -117,17 +137,20 @@ export function useEditor() {
       const onMouseUp = () => handleMouseUp();
       const onMouseMove = (e) => handleMouseMove(getWorldCoords(e));
       const onClick = (e) => handleClick(getWorldCoords(e));
+      const onKeyDown = (e) => handleKeyDown(e);
 
       canvas.addEventListener('mousedown', onMouseDown);
       canvas.addEventListener('click', onClick);
       canvas.addEventListener('mousemove', onMouseMove);
       window.addEventListener('mouseup', onMouseUp);
+      window.addEventListener('keydown', onKeyDown);
 
       return () => {
           canvas.removeEventListener('mousedown', onMouseDown);
           canvas.removeEventListener('click', onClick);
           canvas.removeEventListener('mousemove', onMouseMove);
           window.removeEventListener('mouseup', onMouseUp);
+          window.removeEventListener('keydown', onKeyDown);
       };
   };
 

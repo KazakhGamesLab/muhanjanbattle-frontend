@@ -67,9 +67,14 @@
   
 
 .tool-item.tile_earth{
-background: rgba(255, 192, 75, 0.502);
+  background: rgba(255, 192, 75, 0.502);
 }
 
 .tool-item.background{
-background: rgba(5, 5, 5, 0.502);
+  background: rgba(5, 5, 5, 0.502);
 }
+
+.tool-item.tile_tree{
+  background: rgba(52, 219, 186, 0.4);
+}
+

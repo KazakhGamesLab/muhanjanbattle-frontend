@@ -63,7 +63,7 @@ export function useCamera(canvas, options = {}) {
 
     // Начало перетаскивания
     const onMouseDown = (e) => {
-        if (!dragToPan) return;
+        if (!dragToPan || e.button != 1) return;
         state.isDragging = true;
         state.dragStart.x = e.clientX - canvas.getBoundingClientRect().left;
         state.dragStart.y = e.clientY - canvas.getBoundingClientRect().top;
@@ -106,14 +106,11 @@ export function useCamera(canvas, options = {}) {
 
         const worldPointBefore = screenToWorld(mouseX, mouseY);
 
+        // Применяем зум
         const wheelDelta = e.deltaY < 0 ? 1.1 : 1 / 1.1;
         state.scale = Math.max(minZoom, Math.min(maxZoom, state.scale * wheelDelta));
-
-        const worldPointAfter = screenToWorld(mouseX, mouseY);
-
-        // Смещаем камеру, чтобы точка под курсором осталась на месте
-        state.x += (worldPointAfter.x - worldPointBefore.x);
-        state.y += (worldPointAfter.y - worldPointBefore.y);
+        state.x = worldPointBefore.x - mouseX / state.scale;
+        state.y = worldPointBefore.y - mouseY / state.scale;
     };
 
     // Применение трансформации к контексту canvas перед отрисовкой

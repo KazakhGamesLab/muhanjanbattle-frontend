@@ -68,15 +68,28 @@ export function useGameWorld() {
         ctx.setTransform(1, 0, 0, 1, 0, 0); 
     };
 
-    const prewiewEditor = (tool, worldCoords = state.camera.getMouseWorld()) => {
+    const prewiewEditor = (tool, size, worldCoords = state.camera.getMouseWorld()) => {
         if (!state.ctx || !state.canvas || !state.camera || !images[tool]) return;
-
         const ctx = state.overlayCtx;
         ctx.clearRect(0, 0, state.canvas.width, state.canvas.height);
 
         state.camera.applyTransform(ctx);
 
-        const gridSize = 16;
+        let gridSize = 0;
+
+        if (size == 'small'){
+            gridSize = 4;
+        }
+
+        if (size == 'normal') {
+            gridSize = 8;
+        }
+
+        if (size == 'big') 
+        {
+            gridSize = 32;
+        }
+
         const snappedX = Math.round(worldCoords.x / gridSize) * gridSize;
         const snappedY = Math.round(worldCoords.y / gridSize) * gridSize;
 
@@ -85,7 +98,7 @@ export function useGameWorld() {
             snappedX - images[tool].width / 2,
             snappedY - images[tool].height / 2,
             images[tool].width,
-            images[tool].height
+            images[tool].height 
         );
 
         ctx.setTransform(1, 0, 0, 1, 0, 0);

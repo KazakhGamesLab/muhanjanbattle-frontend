@@ -1,1 +1,1 @@
-export const API_URL = "http://void-rp.ru:8001/api/v1";
+export const API_URL = "http://127.0.0.1:8001/api/v1";
